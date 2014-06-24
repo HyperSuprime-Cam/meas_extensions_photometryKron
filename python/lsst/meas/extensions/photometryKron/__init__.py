@@ -25,5 +25,5 @@ from .version import *
 
 import lsst.meas.algorithms
 lsst.meas.algorithms.AlgorithmRegistry.register("flux.kron", KronFluxControl)
-lsst.meas.algorithms.apCorrRegistry.add("flux.kron")
+lsst.meas.algorithms.getApCorrRegistry().insert("flux.kron")
 del lsst # cleanup namespace
