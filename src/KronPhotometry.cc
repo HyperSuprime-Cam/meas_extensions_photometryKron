@@ -120,7 +120,16 @@ private:
 };
 
 /************************************************************************************************************/
-
+///
+/// Find the first elliptical moment of an object
+///
+/// We know the shape and orientation of the ellipse to use, specified by ab and theta
+/// If we take theta to be 0 the major axis is aligned along the x axis.  In this case
+/// we may define the elliptical radius as sqrt(x^2 + (y*a/b)^2) of a point (x, y).
+///
+/// In other words, it's the length of the major axis of the ellipse of specified shape that passes through
+/// the point
+///
 template <typename MaskedImageT, typename WeightImageT>
 class FootprintFindMoment : public afw::detection::FootprintFunctor<MaskedImageT> {
 public:
@@ -202,7 +211,7 @@ public:
 #endif
     }
 
-    /// Return the Footprint's <r>
+    /// Return the Footprint's <r_elliptical>
     double getIr() const { return _sumR/_sum; }
 
 #if 0
@@ -346,7 +355,7 @@ PTR(KronAperture) KronAperture::determine(ImageT const& image, // Image to measu
             afw::math::convolve(subImage, ImageT(image, bbox, afw::image::PARENT, false), kernel, convCtrl);
         }
         //
-        // Find the desired first moment
+        // Find the desired first moment of the elliptical radius, which corresponds to the major axis.
         //
         FootprintFindMoment<ImageT, afw::detection::Psf::Image> iRFunctor(
                                                     subImage, center, axes.getA()/axes.getB(), axes.getTheta()
@@ -366,7 +375,7 @@ PTR(KronAperture) KronAperture::determine(ImageT const& image, // Image to measu
                               "Bad footprint when determining Kron aperture");
         }
         
-        radius = iRFunctor.getIr();
+        radius = iRFunctor.getIr()*sqrt(axes.getB()/axes.getA());
         if (radius <= radius0) {
             break;
         }
@@ -375,9 +384,7 @@ PTR(KronAperture) KronAperture::determine(ImageT const& image, // Image to measu
         axes.scale(radius/axes.getDeterminantRadius()); // set axes to our current estimate of R_K
     }
 
-    return boost::make_shared<KronAperture>(center,
-                                            afw::geom::ellipses::Axes(radius, radius*axes.getB()/axes.getA(),
-                                                                      axes.getTheta()));
+    return boost::make_shared<KronAperture>(center, axes);
 }
 
 // Photometer an image with a particular aperture
