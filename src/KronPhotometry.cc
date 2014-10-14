@@ -84,7 +84,8 @@ public:
         _badRadiusKey(schema.addField<afw::table::Flag>(ctrl.name + ".flags.radius",
                                                         "Bad Kron radius (too close to edge to measure R_K)")),
         _smallRadiusKey(schema.addField<afw::table::Flag>(ctrl.name + ".flags.smallRadius",
-                                                     "Measured Kron radius was smaller than that of the PSF"))
+                                                     "Measured Kron radius was smaller than that of the PSF")),
+        _psfRadiusKey(schema.addField<float>(ctrl.name + ".psfRadius", "Radius of PSF"))
     {}
 
 private:
@@ -118,6 +119,7 @@ private:
     afw::table::Key<float> _radiusForRadiusKey;
     afw::table::Key<afw::table::Flag> _badRadiusKey;
     afw::table::Key<afw::table::Flag> _smallRadiusKey;
+    afw::table::Key<float> _psfRadiusKey;
 };
 
 /************************************************************************************************************/
@@ -489,6 +491,7 @@ void KronFlux::_applyAperture(
                                                         ctrl.maxSincRadius);
     source.set(getKeys().meas, result.first);
     source.set(getKeys().err, result.second);
+    source.set(_psfRadiusKey, R_K_psf);
     source.set(_radiusKey, aperture.getAxes().getDeterminantRadius());
     source.set(_badRadiusKey, false);
 }
