@@ -412,9 +412,7 @@ class KronPhotometryTestCase(tests.TestCase):
 
                 msg = "flux.kron.flags.radius: cen = (%g, %g), kfac = %g" % (cen, cen, kfac)
 
-                if kfac == 2.5 and (cen <= 20 or cen > self.width - 20):
-                    self.assertTrue(flags_radius, msg)
-                elif kfac == 10:
+                if cen <= 10 or cen > self.width - 10:
                     self.assertTrue(flags_radius, msg)
                 else:
                     self.assertFalse(flags_radius, msg)
