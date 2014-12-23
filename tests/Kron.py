@@ -124,6 +124,9 @@ def measureForced(exposure, refSource, refWcs, msConfig):
     ms = msConfig.makeMeasureSources(schema, isForced=True)
     forcedTable = afwTable.SourceTable.make(schema)
     forced = forcedTable.makeRecord()
+    footprint = refSource.getFootprint().transform(refWcs, exposure.getWcs(),
+                                                   exposure.getBBox(afwImage.PARENT))
+    forced.setFootprint(footprint)
     ms.applyForced(forced, exposure, refSource, refWcs)
     return forced
 
